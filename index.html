@@ -187,6 +187,59 @@ arcadiaCTX.addTo(map);
     }).addTo(map).bindPopup(
       'ARES Landing Site'
     );
+    // SITE 01 — Ancient River Delta
+const deltaSiteBounds = [
+  [18.443, 77.406],
+  [18.447, 77.414]
+];
+
+const deltaSite = L.rectangle(deltaSiteBounds, {
+  color: '#42c8c8',
+  weight: 3,
+  fillColor: '#42c8c8',
+  fillOpacity: 0.2,
+  dashArray: '6, 5'
+}).addTo(map);
+
+// Small information box when hovering
+deltaSite.bindTooltip(
+  '<b>DELTA-01</b><br>Ancient River Delta<br>Scientific Interest: High',
+  {
+    sticky: true,
+    direction: 'top'
+  }
+);
+
+// Detailed information when clicked
+deltaSite.bindPopup(`
+  <div style="width:260px; color:#222;">
+    <h3 style="margin:0 0 8px;">DELTA-01 | Ancient River Delta</h3>
+
+    <img
+      src="https://assets.science.nasa.gov/dynamicimage/assets/science/psd/mars/downloadable_items/4/5/45791_PIA24485_K4_ZCAM_main_sol004_Delta_Remnant_unannotated.jpg"
+      style="width:100%; border-radius:5px;"
+    >
+
+    <p>
+      This geological formation is a remnant of an ancient
+      river delta where flowing water once entered Jezero's lake.
+    </p>
+
+    <b>Scientific observations</b>
+    <ul>
+      <li>Ancient sediment deposits</li>
+      <li>Evidence of past flowing water</li>
+      <li>Potential preservation of ancient biosignatures</li>
+    </ul>
+
+    <small>Image: NASA/JPL-Caltech/ASU/MSSS</small><br>
+
+    <a href="https://science.nasa.gov/resource/perseverance-view-of-the-delta-in-jezero-crater/"
+       target="_blank">
+       View NASA source
+    </a>
+  </div>
+`);
   </script>
 
 </body>
