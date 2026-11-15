@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARES - Mission Arcana</title>
+
+  <!-- Leaflet map library -->
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #111318;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 18px 25px;
+      background: #1c2028;
+      border-bottom: 2px solid #e87545;
+    }
+
+    header h1 {
+      margin: 0;
+      color: #e87545;
+      letter-spacing: 4px;
+      font-size: 30px;
+    }
+
+    header p {
+      margin: 5px 0 0;
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    .mission {
+      padding: 12px 20px;
+      background: #242832;
+      border-bottom: 1px solid #393e49;
+    }
+
+    .mission strong {
+      color: #e87545;
+    }
+
+    #map {
+      width: 100%;
+      height: calc(100vh - 145px);
+      min-height: 400px;
+      background: #242424;
+    }
+
+    .leaflet-control-attribution {
+      font-size: 10px !important;
+    }
+  
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>ARES</h1>
+    <p>ASTRONAUTIC RECONNAISSANCE & EXPLORATION SYSTEM</p>
+  </header>
+
+  <div class="mission">
+    <strong>MISSION ARCANA</strong>
+    &nbsp;|&nbsp; SEDIMENTOLOGICAL INVESTIGATION
+    &nbsp;|&nbsp; JEZERO CRATER
+  </div>
+
+  <div id="map"></div>
+
+  <!-- Load Leaflet -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+
+    // Create the Mars map
+    const map = L.map('map', {
+  center: [18.4, 77.5],
+  zoom: 8.4,
+  minZoom: 2,
+  maxZoom: 14,
+  worldCopyJump: false
+});
+
+    // Load Mars surface imagery
+    L.tileLayer(
+      'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-mars-basemap-v0-2/all/{z}/{x}/{y}.png',
+      {
+        attribution: 'Map imagery © OpenPlanetaryMap',
+        maxZoom: 14,
+        noWrap: true
+      }
+    ).addTo(map);
+// Jezero Crater topographic map
+const topoBounds = [
+  [17.58, 76.99],  // Southwest corner
+  [19.29, 78.58]   // Northeast corner
+];
+
+const topoOverlay = L.imageOverlay(
+  'jezero_topography.jpg',
+  topoBounds,
+  {
+    opacity: 0.4
+  }
+);
+
+
+    // Jezero Crater slope overlay
+const slopeBounds = [
+  [17.5357702, 77.0825959],
+  [19.3199007, 77.7959073]
+];
+
+const slopeOverlay = L.imageOverlay(
+  'jezero_slope.jpg',
+  slopeBounds,
+  {
+    opacity: 0.4
+  }
+);
+    slopeOverlay.addTo(map);
+    // Map layer controls
+L.control.layers(
+  null,
+  {
+    "Jezero Topography": topoOverlay,
+    "Jezero Terrain Slope": slopeOverlay
+  }
+).addTo(map);
+// NASA CTX imagery
+const arcadiaCTX = L.tileLayer(
+  'https://trek.nasa.gov/tiles/Mars/EQ/Arcadia_Planitia_CTX_BlockAdj_dd/{z}/{y}/{x}.png',
+  {
+    minZoom: 0,
+    maxZoom: 14,
+    attribution: 'CTX imagery © NASA/JPL',
+    noWrap: true
+  }
+);
+
+arcadiaCTX.addTo(map);
+
+    // Draw the approximate Jezero Crater survey boundary
+    const surveyArea = [
+      [19.29, 78.58],
+      [19.29, 76.99],
+      [17.58, 78.58],
+      [17.58, 76.99]
+    ];
+
+    L.rectangle(surveyArea, {
+      color: '#ff6600',
+      weight: 4,
+      fillColor: '#ff6600',
+      fillOpacity: 0.15,
+      dashArray: '8, 6'
+    }).addTo(map).bindPopup(
+      'ARES Survey Region — Jezero Crater'
+    );
+    
+    const landingArea = [
+      [18.75, 77.15],
+      [18.75, 77.35],
+      [18.95, 77.35],
+      [18.95, 77.15]
+    ];
+
+    L.rectangle(landingArea, {
+      color: '#FF4400',
+      weight: 4,
+      fillColor: '#FF4400',
+      fillOpacity: 0.15,
+      dashArray: '8, 6'
+    }).addTo(map).bindPopup(
+      'ARES Landing Zone'
+    );
+  </script>
+
+</body>
+</html>
