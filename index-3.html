@@ -1,0 +1,516 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARES - Mission Arcana</title>
+
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #111318;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 18px 25px;
+      background: #1c2028;
+      border-bottom: 2px solid #e87545;
+    }
+
+    header h1 {
+      margin: 0;
+      color: #e87545;
+      letter-spacing: 4px;
+      font-size: 30px;
+    }
+
+    header p {
+      margin: 5px 0 0;
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    .mission {
+      padding: 12px 20px;
+      background: #242832;
+      border-bottom: 1px solid #393e49;
+    }
+
+    .mission strong {
+      color: #e87545;
+    }
+
+    #map {
+      width: 100%;
+      height: calc(100vh - 145px);
+      min-height: 400px;
+      background: #242424;
+    }
+
+    .leaflet-control-attribution {
+      font-size: 10px !important;
+    }
+  
+  
+.ares-panel {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1000;
+  width: min(310px, calc(100vw - 36px));
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  padding: 16px;
+  background: rgba(9, 19, 29, 0.96);
+  color: #dceaf2;
+  border: 1px solid #426174;
+  border-radius: 7px;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.45);
+  scrollbar-width: thin;
+  scrollbar-color: #426174 transparent;
+}
+
+.ares-panel h2 {
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: #66d9ef;
+  margin: 0 0 12px;
+}
+
+.ares-panel h3 {
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: #9bb7c7;
+  margin: 17px 0 9px;
+  border-bottom: 1px solid #304653;
+  padding-bottom: 7px;
+}
+
+.ares-panel p {
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 5px 0;
+}
+
+.ares-panel .objective {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid #263b49;
+  font-size: 12px;
+}
+
+.ares-panel .status {
+  color: #e9bd59;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.ares-panel .data-item {
+  background: rgba(42, 68, 83, 0.4);
+  padding: 9px;
+  margin-bottom: 7px;
+  border-left: 3px solid #48bcd0;
+  border-radius: 3px;
+}
+
+.ares-panel .data-title {
+  color: #66d9ef;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.ares-panel .data-value {
+  color: #dceaf2;
+  font-size: 11px;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+.ares-panel .source {
+  color: #8299a8;
+  font-size: 10px;
+  margin-top: 12px;
+}
+.ares-panel.collapsed {
+  width: auto;
+  max-height: none;
+  padding: 4px;
+  overflow: hidden;
+  background: rgba(9, 19, 29, 0.92);
+  border: 1px solid #426174;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.35);
+}
+
+.ares-panel.collapsed .panel-content {
+  display: none;
+}
+
+.panel-toggle {
+  display: block;
+  min-width: 36px;
+  min-height: 34px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #66d9ef;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 7px 9px;
+  letter-spacing: 1px;
+}
+
+.panel-toggle:hover {
+  background: rgba(102, 217, 239, 0.12);
+}
+
+.panel-toggle:focus-visible {
+  outline: 2px solid #66d9ef;
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .ares-panel {
+    right: 10px;
+    bottom: 10px;
+    width: min(310px, calc(100vw - 20px));
+    max-height: calc(100vh - 165px);
+  }
+}
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>A.R.E.S.</h1>
+    <p>ASTRONAUTIC RECONNAISSANCE & EXPLORATION SYSTEM</p>
+  </header>
+
+  <div class="mission">
+    <strong>MISSION ARCANA</strong>
+    &nbsp;|&nbsp; SEDIMENTOLOGICAL INVESTIGATION
+    &nbsp;|&nbsp; JEZERO CRATER
+  </div>
+
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+
+    const map = L.map('map', {
+  center: [18.4, 77.5],
+  zoom: 8.4,
+  minZoom: 2,
+  maxZoom: 14,
+  worldCopyJump: false
+});
+    map.setView([18.50, 77.48], 9);
+
+    L.tileLayer(
+      'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-mars-basemap-v0-2/all/{z}/{x}/{y}.png',
+      {
+        attribution: 'Map imagery © OpenPlanetaryMap',
+        maxZoom: 14,
+        noWrap: true
+      }
+    ).addTo(map);
+
+const topoBounds = [
+  [17.58, 76.99],  // Southwest corner
+  [19.29, 78.58]   // Northeast corner
+];
+
+const topoOverlay = L.imageOverlay(
+  'jezero_topography.jpg',
+  topoBounds,
+  {
+    opacity: 0.4
+  }
+);
+
+const slopeBounds = [
+  [17.5357702, 77.0825959],
+  [19.3199007, 77.7959073]
+];
+
+const slopeOverlay = L.imageOverlay(
+  'jezero_slope.jpg',
+  slopeBounds,
+  {
+    opacity: 0.8
+  }
+);
+   
+L.control.layers(
+  null,
+  {
+    "Jezero Topography": topoOverlay,
+    "Jezero Terrain Slope": slopeOverlay
+  }
+).addTo(map);
+
+    const surveyArea = [
+      [18.3, 76.99],  // Southwest corner
+      [19.15, 77.8]  // Northeast corner
+    ];
+
+    L.rectangle(surveyArea, {
+      color: '#ff6600',
+      weight: 4,
+      fillColor: '#ff6600',
+      fillOpacity: 0.15,
+      dashArray: '8, 6'
+    }).addTo(map).bindPopup(
+      'ARES Survey Region — Jezero Crater'
+    );
+    
+    const landingArea = [
+      [18.841, 77.236],
+      [18.841, 77.264],
+      [18.859, 77.264],
+      [18.859, 77.236]
+    ];
+
+    L.rectangle(landingArea, {
+      color: '#FF4400',
+      weight: 4,
+      fillColor: '#FF4400',
+      fillOpacity: 0.15,
+      dashArray: '8, 6'
+    }).addTo(map).bindPopup(
+      'ARES Landing Site'
+    );
+    
+const deltaSiteBounds = [
+  [18.443, 77.406],
+  [18.447, 77.414]
+];
+
+const deltaSite = L.rectangle(deltaSiteBounds, {
+  color: '#42c8c8',
+  weight: 3,
+  fillColor: '#42c8c8',
+  fillOpacity: 0.2,
+  dashArray: '6, 5'
+}).addTo(map);
+
+deltaSite.bindTooltip(
+  '<b>RIVER DELTA</b><br>Ancient River Delta<br>Sedimentary Rock Sampling Site<br>Distance: 48.1km',
+  {
+    sticky: true,
+    direction: 'top'
+  }
+);
+
+deltaSite.bindPopup(`
+  <div style="width:260px; color:#222;">
+    <h3 style="margin:0 0 8px;">DELTA | Ancient River Delta</h3>
+
+    <img
+      src="https://assets.science.nasa.gov/dynamicimage/assets/science/psd/mars/downloadable_items/4/5/45791_PIA24485_K4_ZCAM_main_sol004_Delta_Remnant_unannotated.jpg"
+      style="width:100%; border-radius:5px;"
+    >
+
+    <p>
+      This geological formation is a remnant of an ancient
+      river delta where flowing water once entered Jezero's lake.
+    </p>
+
+    <b>Scientific observations</b>
+    <ul>
+      <li>Ancient sediment deposits</li>
+      <li>Evidence of past flowing water</li>
+      <li>Potential preservation of ancient biosignatures</li>
+    </ul>
+
+    <small>Image: NASA/JPL-Caltech/ASU/MSSS</small><br>
+
+    <a href="https://science.nasa.gov/resource/perseverance-view-of-the-delta-in-jezero-crater/"
+       target="_blank">
+       View NASA source
+    </a>
+  </div>
+`);
+    
+const geoSurveyBounds = [
+  [18.425, 77.435],
+  [18.440, 77.452]
+];
+
+const geoSurvey = L.rectangle(geoSurveyBounds, {
+  color: '#b46cff',
+  weight: 3,
+  fillColor: '#b46cff',
+  fillOpacity: 0.12,
+  dashArray: '7, 5'
+}).addTo(map);
+
+geoSurvey.bindTooltip(
+  '<b>GEOLOGICAL MAPPING SITE</b><br>Geological Survey Zone<br>Terrain & Rock Formation Analysis<br>Distance: 50.7km',
+  {
+    sticky: true,
+    direction: 'top'
+  }
+);
+
+geoSurvey.bindPopup(`
+  <div style="width:260px; color:#222;">
+    <h3 style="margin:0 0 8px;">GEO-01 | Geological Survey</h3>
+
+    <p>
+      A designated area for investigating the geological
+      features and surface composition of Jezero Crater.
+    </p>
+
+    <b>Survey Objectives</b>
+    <ul>
+      <li>Identify different rock formations</li>
+      <li>Examine exposed geological layers</li>
+      <li>Document fractures and erosion patterns</li>
+      <li>Record geological observations</li>
+    </ul>
+
+    <b>Mission Activity:</b>
+    Geological Mapping
+  </div>
+`);
+
+const bioBounds = [
+  [18.655, 77.475],
+  [18.675, 77.515]
+];
+
+const bioSite = L.rectangle(bioBounds, {
+  color: '#55d68b',
+  weight: 3,
+  fillColor: '#55d68b',
+  fillOpacity: 0.18,
+  dashArray: '7, 5'
+}).addTo(map);
+
+bioSite.bindTooltip(
+  '<b>BIO SAMPLING SITE</b><br>Potential Biosignature Investigation<br>Distance: 33.0km',
+  {
+    sticky: true,
+    direction: 'top'
+  }
+);
+
+bioSite.bindPopup(`
+  <div style="width:260px; color:#222;">
+    <h3 style="margin:0 0 8px;">BIO-01 | Biosignature Investigation</h3>
+
+    <p>
+      A designated investigation zone focused on identifying
+      possible chemical or structural evidence of ancient
+      microbial life preserved in Martian rocks.
+    </p>
+
+    <b>Investigation Objectives</b>
+    <ul>
+      <li>Examine fine-grained sedimentary rocks</li>
+      <li>Search for possible organic compounds</li>
+      <li>Identify mineral patterns that may preserve biosignatures</li>
+      <li>Document and collect promising samples</li>
+    </ul>
+
+    <b>Mission Activity:</b>
+    Biological Investigation
+    <br><br>
+  </div>
+`);
+
+function togglePanel() {
+  const panel = document.getElementById('aresPanel');
+  if (!panel) return;
+
+  const button = panel.querySelector('.panel-toggle');
+  const isCollapsed = panel.classList.toggle('collapsed');
+
+  button.textContent = isCollapsed ? 'ⓘ' : '✕ CLOSE';
+  button.title = isCollapsed
+    ? 'Open Mission Information'
+    : 'Close Mission Information';
+  button.setAttribute('aria-expanded', String(!isCollapsed));
+  button.setAttribute(
+    'aria-label',
+    isCollapsed ? 'Open Mission Information' : 'Close Mission Information'
+  );
+}
+  </script>
+
+<div class="ares-panel collapsed" id="aresPanel">
+
+  <button class="panel-toggle" type="button" onclick="togglePanel()" aria-label="Open Mission Information" aria-expanded="false" title="Open Mission Information">ⓘ</button>
+
+  <div class="panel-content">
+
+  <h2>ARES // MISSION PANEL</h2>
+  <p>MISSION ARCANA</p>
+  <p>LOCATION: JEZERO CRATER, MARS</p>
+  <p>MISSION STATUS: <span style="color:#e9bd59;">IN PROGRESS</span></p>
+
+  <h3>MISSION OBJECTIVES</h3>
+
+  <div class="objective">
+    <span>DELTA | Rock Sampling</span>
+    <span class="status">PENDING</span>
+  </div>
+
+  <div class="objective">
+    <span>GEO | Geological Survey</span>
+    <span class="status">PENDING</span>
+  </div>
+
+  <div class="objective">
+    <span>BIO | Biosignature Search</span>
+    <span class="status">PENDING</span>
+  </div>
+
+  <h3>PERSEVERANCE ROVER // ARCHIVED DATA</h3>
+  <p>REFERENCE: NASA MARS 2020 MISSION</p>
+
+  <div class="data-item">
+    <div class="data-title">01 // ATMOSPHERIC DATA</div>
+    <div class="data-value">
+      Instrument: MEDA<br>
+      Air temperature: -20°C to -25°C<br>
+      Atmospheric pressure: ≈ 718 Pascals<br>
+      Wind speed & direction: 11.5 km/h<br>
+      Relative humidity: 15% to 30%<br>
+      Atmospheric dust:  0.2 to 0.4τ
+    </div>
+  </div>
+
+  <div class="data-item">
+    <div class="data-title">02 // RADIATION DATA</div>
+    <div class="data-value">
+      Instrument: MEDA - RDS / TIRS<br>
+      Ultraviolet radiation: 20 to 40 W/m²<br>
+      Solar radiation: 400 to 650 W/m²<br>
+      Infrared radiation: 60 W/m²<br>
+    </div>
+  </div>
+
+  <p class="source">
+    DATA SOURCE: NASA / JPL-CALTECH<br>
+    Archived Perseverance rover observations.<br>
+  </p>
+
+</div>
+
+</body>
+</html>
