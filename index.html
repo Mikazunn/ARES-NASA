@@ -188,6 +188,83 @@
     max-height: calc(100vh - 165px);
   }
 }
+    /* ARES Map Colour Legend */
+.ares-legend {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+  width: 225px;
+  padding: 13px;
+  background: rgba(9, 19, 29, 0.94);
+  color: #dceaf2;
+  border: 1px solid #426174;
+  border-radius: 7px;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+}
+
+.ares-legend h3 {
+  margin: 0 0 12px;
+  color: #66d9ef;
+  font-size: 12px;
+  letter-spacing: 2px;
+  border-bottom: 1px solid #304653;
+  padding-bottom: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 9px 0;
+  font-size: 11px;
+}
+
+.legend-colour {
+  width: 22px;
+  height: 13px;
+  border: 2px dashed;
+  flex-shrink: 0;
+}
+
+.legend-orange {
+  border-color: #ff6600;
+  background: rgba(255, 102, 0, 0.2);
+}
+
+.legend-red {
+  border-color: #FF4400;
+  background: rgba(255, 68, 0, 0.2);
+}
+
+.legend-cyan {
+  border-color: #42c8c8;
+  background: rgba(66, 200, 200, 0.2);
+}
+
+.legend-purple {
+  border-color: #b46cff;
+  background: rgba(180, 108, 255, 0.2);
+}
+
+.legend-green {
+  border-color: #55d68b;
+  background: rgba(85, 214, 139, 0.2);
+}
+
+@media (max-width: 600px) {
+  .ares-legend {
+    left: 10px;
+    bottom: 10px;
+    width: 190px;
+    padding: 10px;
+  }
+
+  .legend-item {
+    font-size: 10px;
+  }
+}
   </style>
 </head>
 
@@ -452,6 +529,37 @@ function togglePanel() {
 }
   </script>
 
+<div class="ares-legend">
+
+  <h3> // SITE LEGEND //</h3>
+
+  <div class="legend-item">
+    <span class="legend-colour legend-orange"></span>
+    <span>Survey Boundary</span>
+  </div>
+
+  <div class="legend-item">
+    <span class="legend-colour legend-red"></span>
+    <span>Landing Site</span>
+  </div>
+
+  <div class="legend-item">
+    <span class="legend-colour legend-cyan"></span>
+    <span>DELTA | River Delta</span>
+  </div>
+
+  <div class="legend-item">
+    <span class="legend-colour legend-purple"></span>
+    <span>GEO | Geological Survey</span>
+  </div>
+
+  <div class="legend-item">
+    <span class="legend-colour legend-green"></span>
+    <span>BIO | Biosignature Zone</span>
+  </div>
+
+</div>
+  
 <div class="ares-panel collapsed" id="aresPanel">
 
   <button class="panel-toggle" type="button" onclick="togglePanel()" aria-label="Open Mission Information" aria-expanded="false" title="Open Mission Information">ⓘ</button>
